@@ -100,7 +100,7 @@ do something with it."
     (minibuffer . nil)
     (unsplittable . t)
     (no-other-frame . t)
-    (auto-hide-function . pdf-links-hide-childframe)
+    (auto-hide-function . pdf-links-hide-child-frame)
     ;; Setting fringes to zero causes Emacs to reserve space for truncation
     ;; and continuation glyphs which end up taking more space.
     (left-fringe . 1)
