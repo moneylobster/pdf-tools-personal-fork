@@ -536,7 +536,7 @@ is non-nil assume link to be at mouse position."
                              (line-pixel-height)))
                         (- (cdr image-offset))))
            (x-offset (+ (nth 0 win-edges)
-                        (- (* (frame-char-height) (window-hscroll)))
+                        (- (* (frame-char-width) (window-hscroll)))
                         prefix
                         (- (car image-offset)))))
       (list (+ (nth 0 edges) x-offset)
