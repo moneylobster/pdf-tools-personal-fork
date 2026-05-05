@@ -496,7 +496,9 @@ PNG images in Emacs buffers."
                 (:eval
                  (or (and pdf-view-mode-line-position-use-labels
                           (ignore-errors (pdf-view-current-pagelabel)))
-                     (number-to-string (pdf-view-current-page))))
+                     (ignore-errors
+                       (number-to-string (pdf-view-current-page)))
+                     "?"))
                 ;; Avoid errors during redisplay.
                 "/" (:eval (or (ignore-errors
                                  (number-to-string (pdf-cache-number-of-pages)))
