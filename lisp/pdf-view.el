@@ -1355,9 +1355,17 @@ If WINDOW is t, redisplay pages in all windows."
       ;; We're not displaying an image yet, so let's do so.  This
       ;; happens when the buffer is displayed for the first time.
       (with-selected-window (car winprops)
-        (pdf-view-goto-page
-         (or (image-mode-window-get 'page t) 1))
-        (pdf-view--restore-origin)))))
+        (let* ((page (or (image-mode-window-get 'page t) 1))
+               ;; New winprops inherit the alist from the most recent
+               ;; entry (see image-mode-winprops), so the per-window page
+               ;; may already equal PAGE -- in which case pdf-view-goto-page
+               ;; suppresses pdf-view-change-page-hook. Detect that and run
+               ;; the hook ourselves so consumers update on first display.
+               (suppressed (eq page (pdf-view-current-page (car winprops)))))
+          (pdf-view-goto-page page)
+          (pdf-view--restore-origin)
+          (when suppressed
+            (run-hooks 'pdf-view-change-page-hook)))))))
 
 (defun pdf-view-desired-image-size (&optional page window slice)
   "Compute size of PAGE appropriate for displaying it in WINDOW.
