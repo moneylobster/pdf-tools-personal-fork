@@ -156,7 +156,7 @@ If INHIBIT-SLICE-P is non-nil, disregard `pdf-view-current-slice'."
     (overlay-put overlay 'line-prefix offset)
     (overlay-put overlay 'image-height (cdr size))
     (overlay-put margin-overlay 'display `(space :width (,(car size))
-                                                 :height (pdf-roll-vertical-margin)))
+                                                 :height (,pdf-roll-vertical-margin)))
     (overlay-put margin-overlay 'line-prefix offset)
     (cdr size)))
 
