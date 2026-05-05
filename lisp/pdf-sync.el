@@ -871,9 +871,9 @@ and Y2 may be nil, if the destination could not be found."
   (save-excursion
     (save-restriction
       (let ((reg (pdf-sync--get-region pos))
-            (pos (point))
             beg end)
         (narrow-to-region (car reg) (cdr reg))
+        (goto-char pos)
         (with-syntax-table pdf-sync--forward-macro-syntax-table
           (when-let ((macro (progn (skip-chars-forward "\\\\a-zA-Z[]")
                                    (when (memq (char-after) '(?{ ?\[))
