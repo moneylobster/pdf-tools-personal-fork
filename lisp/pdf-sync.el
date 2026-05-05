@@ -703,7 +703,7 @@ if the point is outside them."
     (when pos (goto-char pos))
     (cl-destructuring-bind (pdf page . edges)
         (or (and pdf-sync-forward-use-heuristic
-                 (pdf-sync--forward-correlate-heuristically))
+                 (ignore-errors (pdf-sync--forward-correlate-heuristically)))
             (pdf-sync-forward-correlate))
       (let ((buffer (or (and (bufferp pdf) pdf)
                         (find-buffer-visiting pdf)
