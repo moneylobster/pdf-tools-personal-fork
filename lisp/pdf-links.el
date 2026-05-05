@@ -366,7 +366,7 @@ If USE-MOUSE-POS is non-nil consider mouse position to be link position."
                     (let ((child-pos (frame-position pdf-links--child-frame))
                           (parent-pos (frame-position)))
                       (setq x1 (- (car child-pos) (car parent-pos)))
-                      (setq y1 (- (cdr child-pos) (car parent-pos)))
+                      (setq y1 (- (cdr child-pos) (cdr parent-pos)))
                       (setq x2 (+ x1 (frame-native-width pdf-links--child-frame)))
                       (setq y2 (+ y1 (frame-native-height pdf-links--child-frame)))
                       (unless (and (< x1 x) (< y1 y) (< x x2) (< y y2))
