@@ -683,7 +683,7 @@ if the point is outside them."
     (modify-syntax-entry ?{ "(}" syntax-table)
     (modify-syntax-entry ?} "){" syntax-table)
     (modify-syntax-entry ?\[ "(]" syntax-table)
-    (modify-syntax-entry ?\[ ")[" syntax-table)
+    (modify-syntax-entry ?\] ")[" syntax-table)
     (modify-syntax-entry ?\\ "/" syntax-table)
     syntax-table))
 
