@@ -1286,6 +1286,17 @@ See also `pdf-view-use-imagemagick'."
       :pointer 'arrow)))
 
 
+(defun pdf-view-displayed-image (&optional page window)
+  "Return the image WINDOW displays for PAGE, or nil if there is none.
+The image is returned without any slice.  Unlike `pdf-view-image-size'
+this never signals, draws nothing and asks the server nothing, so it may
+be called while Emacs is displaying."
+  (let ((display (ignore-errors (pdf-view-page-image page window))))
+    (if (eq (car-safe display) 'image)
+        display
+      (let ((image (car-safe (cdr-safe display))))
+        (and (eq (car-safe image) 'image) image)))))
+
 (defun pdf-view-image-size (&optional displayed-p window page)
   "Return the size in pixel of the current image in WINDOW.
 

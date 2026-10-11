@@ -79,7 +79,9 @@
 
 (defun pdf-roll-page-image (page window)
   "Return the image for PAGE that is being displayed in WINDOW."
-  (overlay-get (pdf-roll-page-overlay page window) 'display))
+  ;; The overlay is missing while the ones a revert removed are rebuilt.
+  (when-let* ((overlay (pdf-roll-page-overlay page window)))
+    (overlay-get overlay 'display)))
 
 (defun pdf-roll-displayed-pages (&optional window)
   "Return the pages being displayed in WINDOW."
@@ -202,7 +204,8 @@ If FORCE is non-nill redisplay a page even if it is already displayed."
   "Undisplay PAGES from WINDOW.
 Replaces the display property of the overlay holding a page with a space."
   (dolist (page pages)
-    (let* ((ov (pdf-roll-page-overlay page window)))
+    ;; A page with no overlay is one the document no longer has.
+    (when-let* ((ov (pdf-roll-page-overlay page window)))
       (overlay-put ov 'display (get 'pdf-roll 'display)))))
 
 ;;; State Management

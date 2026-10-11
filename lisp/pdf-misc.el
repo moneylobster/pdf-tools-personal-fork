@@ -61,21 +61,26 @@
                      mode-line-position :key 'car-safe)))))
 
 (defun pdf-misc-size-indication ()
-  "Return size indication string for the mode-line."
-  (let ((top (= (window-vscroll nil t) 0))
-        (bot (>= (+ (- (nth 3 (window-inside-pixel-edges))
-                       (nth 1 (window-inside-pixel-edges)))
-                    (window-vscroll nil t))
-                 (cdr (pdf-view-image-size t)))))
-    (cond
-     ((and top bot) " All")
-     (top " Top")
-     (bot " Bot")
-     (t (format
-         " %d%%%%"
-         (ceiling
-          (* 100 (/ (float (window-vscroll nil t))
-                    (cdr (pdf-view-image-size t))))))))))
+  "Return size indication string for the mode-line.
+Empty when the window shows no image for the page yet."
+  ;; This runs from a mode-line construct, so it must not signal.
+  ;; `pdf-view-image-size' does when the page has no image, e.g. under
+  ;; `pdf-view-roll-minor-mode' while a revert's overlays are rebuilt.
+  (let ((height (and (pdf-view-displayed-image)
+                     (cdr (pdf-view-image-size t))))
+        (vscroll (window-vscroll nil t)))
+    (if (not (and height (> height 0)))
+        ""
+      (let ((top (= vscroll 0))
+            (bot (>= (+ (- (nth 3 (window-inside-pixel-edges))
+                           (nth 1 (window-inside-pixel-edges)))
+                        vscroll)
+                     height)))
+        (cond
+         ((and top bot) " All")
+         (top " Top")
+         (bot " Bot")
+         (t (format " %d%%%%" (ceiling (* 100 (/ (float vscroll) height))))))))))
 
 (defvar pdf-misc-menu-bar-minor-mode-map (make-sparse-keymap)
   "The keymap used in `pdf-misc-menu-bar-minor-mode'.")
