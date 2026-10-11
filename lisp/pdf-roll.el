@@ -377,20 +377,39 @@ If PIXELS is non-nil N is number of pixels instead of lines."
       (pdf-roll-set-vscroll (max 0 (- n)) window))))
 
 (defun pdf-roll-scroll-screen-forward (&optional arg)
-  "Scroll forward by (almost) ARG many full screens."
+  "Scroll forward by (almost) ARG many full screens.
+If the pages scrolled past fit in the window, scroll by exactly their
+height instead, so that the window moves by whole pages."
   (interactive "p")
-  (pdf-roll-scroll-forward
-   (- (* (window-text-height nil t) arg)
-      (* next-screen-context-lines (frame-char-height)))
-   nil t))
+  (pdf-roll-scroll-forward (pdf-roll--screen-pixels (or arg 1)) nil t))
 
 (defun pdf-roll-scroll-screen-backward (&optional arg)
-  "Scroll backward by (almost) ARG many full screens."
+  "Scroll backward by (almost) ARG many full screens.
+If the pages scrolled past fit in the window, scroll by exactly their
+height instead, so that the window moves by whole pages."
   (interactive "p")
-  (pdf-roll-scroll-backward
-   (- (* (window-text-height nil t) arg)
-      (* next-screen-context-lines (frame-char-height)))
-   nil t))
+  (pdf-roll-scroll-backward (pdf-roll--screen-pixels (- (or arg 1))) nil t))
+
+(defun pdf-roll--screen-pixels (arg &optional window)
+  "Return the pixels a screen scroll by ARG screens should move in WINDOW.
+ARG is negative for scrolling backward.  When each of the pages the
+scroll passes fits in WINDOW, this is the sum of their heights.
+Otherwise it is ARG screens less `next-screen-context-lines'."
+  (let* ((window (or window (selected-window)))
+         (height (window-text-height window t))
+         (page (pdf-view-current-page window))
+         (pages (if (> arg 0)
+                    (number-sequence page (+ page arg -1))
+                  (number-sequence (+ page arg) (1- page))))
+         (pages (cl-remove-if-not
+                 (lambda (p) (<= 1 p (pdf-cache-number-of-pages)))
+                 pages))
+         (heights (mapcar (lambda (p) (pdf-roll--display-height p window))
+                          pages)))
+    (if (and heights (cl-every (lambda (h) (<= h height)) heights))
+        (apply #'+ heights)
+      (- (* height (abs arg))
+         (* next-screen-context-lines (frame-char-height))))))
 
 (defun pdf-roll-scroll-to-end-of-page ()
   "Scroll forward till the end of last displayed page is visible."
