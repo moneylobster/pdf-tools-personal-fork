@@ -220,7 +220,7 @@ Replaces the display property of the overlay holding a page with a space."
                  ((not (window-live-p win-old))))
         (remove-overlays (point-min) (point-max) 'window win-old))))
   ;; initial `pdf-roll-redisplay' needs to know which page(s) to display
-  (image-mode-window-put 'displaued-pages win nil)
+  (image-mode-window-put 'displayed-pages nil win)
   (cl-callf or (pdf-view-current-page win) 1)
   (cl-callf or (image-mode-window-get 'vscroll win) 0)
   (pdf-view--restore-origin))
