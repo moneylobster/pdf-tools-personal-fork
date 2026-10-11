@@ -1426,11 +1426,22 @@ If WINDOW is t, redisplay pages in all windows."
   ;; (message "New window %s for buf %s" (car winprops) (current-buffer))
   (cl-assert (or (eq t (car winprops))
                  (eq (window-buffer (car winprops)) (current-buffer))))
-  (let ((ol (image-mode-window-get 'overlay winprops)))
+  (let* ((ol (image-mode-window-get 'overlay winprops))
+         (owner (and ol (overlay-get ol 'window)))
+         (fresh nil))
+    ;; A new window's winprops are copied from the most recent entry (see
+    ;; `image-mode-winprops'), so OL may be the overlay of another window
+    ;; still showing this buffer.  Reusing it would take the page away from
+    ;; that window, which is then left showing the raw PDF.
+    (when (and ol (overlay-buffer ol)
+               (window-live-p owner)
+               (not (eq owner (car winprops))))
+      (setq ol nil))
     (if ol
         ;; `ol' might actually be dead.
         (move-overlay ol (point-min) (point-max))
-      (setq ol (make-overlay (point-min) (point-max) nil t))
+      (setq ol (make-overlay (point-min) (point-max) nil t)
+            fresh t)
       (overlay-put ol 'pdf-view t))
     (overlay-put ol 'window (car winprops))
     (if (windowp (car winprops))
@@ -1445,9 +1456,10 @@ If WINDOW is t, redisplay pages in all windows."
                  (not (window-live-p (overlay-get ov 'window))))
         (delete-overlay ov)))
     (when (and (windowp (car winprops))
-               (null (image-mode-window-get 'image winprops)))
+               (or fresh (null (image-mode-window-get 'image winprops))))
       ;; We're not displaying an image yet, so let's do so.  This
-      ;; happens when the buffer is displayed for the first time.
+      ;; happens when the buffer is displayed for the first time, and
+      ;; in a new window, whose inherited `image' is not on its overlay.
       (with-selected-window (car winprops)
         (let* ((page (or (image-mode-window-get 'page t) 1))
                ;; New winprops inherit the alist from the most recent
